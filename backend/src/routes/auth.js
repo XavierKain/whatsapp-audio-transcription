@@ -1,5 +1,6 @@
 const express = require('express');
 const supabase = require('../db/supabase');
+const { createCustomer } = require('../services/stripe');
 
 const router = express.Router();
 
@@ -51,12 +52,15 @@ router.post('/signup', async (req, res) => {
     return res.status(500).json({ error: userError.message });
   }
 
+  // Create Stripe customer (optional — gracefully handles missing key)
+  const stripeCustomerId = await createCustomer(email).catch(() => null);
+
   // Insert default subscription
   const { error: subError } = await supabase.from('subscriptions').insert({
     user_id: userId,
     plan: 'free',
     status: 'active',
-    stripe_customer_id: null,
+    stripe_customer_id: stripeCustomerId,
   });
   if (subError) {
     return res.status(500).json({ error: subError.message });

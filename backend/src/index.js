@@ -11,8 +11,13 @@ const usageRouter = require('./routes/usage');
 const settingsRouter = require('./routes/settings');
 const subscriptionRouter = require('./routes/subscription');
 const referralRouter = require('./routes/referral');
+const webhooksRouter = require('./routes/webhooks');
 
 const app = express();
+
+// Mount webhooks BEFORE express.json() — Stripe requires raw body for signature verification
+app.use('/webhooks', webhooksRouter);
+
 app.use(express.json());
 
 const sessionManager = new SessionManager();

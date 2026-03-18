@@ -21,4 +21,7 @@ module.exports = {
   encryptionKey: process.env.ENCRYPTION_KEY,
   port: parseInt(process.env.PORT || '3000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+  appUrl: process.env.APP_URL || '',
 };
