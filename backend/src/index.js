@@ -5,6 +5,12 @@ const { processAudioMessage } = require('./pipeline/transcribe');
 const { startRetryWorker, stopRetryWorker } = require('./pipeline/retryWorker');
 const { createWhatsAppRouter } = require('./routes/whatsapp');
 const pushRouter = require('./routes/push');
+const authRouter = require('./routes/auth');
+const transcriptionsRouter = require('./routes/transcriptions');
+const usageRouter = require('./routes/usage');
+const settingsRouter = require('./routes/settings');
+const subscriptionRouter = require('./routes/subscription');
+const referralRouter = require('./routes/referral');
 
 const app = express();
 app.use(express.json());
@@ -19,6 +25,12 @@ sessionManager.emitter.on('audio-received', ({ userId, message }) => {
 
 app.use('/whatsapp', createWhatsAppRouter(sessionManager));
 app.use('/push', pushRouter);
+app.use('/auth', authRouter);
+app.use('/transcriptions', transcriptionsRouter);
+app.use('/usage', usageRouter);
+app.use('/settings', settingsRouter);
+app.use('/subscription', subscriptionRouter);
+app.use('/referral', referralRouter);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', sessions: sessionManager.sessions.size });
