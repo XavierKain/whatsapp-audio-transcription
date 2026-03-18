@@ -427,6 +427,7 @@ Add-ons stack (buying +100 then +300 = +400 min/month). Stored in `extra_minutes
 | **2** | Backend API + DB — Supabase schema, auth, REST routes, usage tracking | Phase 1 |
 | **3** | Mobile app MVP — Auth, pairing flow, transcription feed, push handling | Phase 2 |
 | **4** | Payments + referrals — Stripe integration, add-on packs, referral system | Phase 3 |
+| **5** | Landing page — marketing site, pricing, app store links, SEO | Phase 1 (can run in parallel) |
 
 ---
 
