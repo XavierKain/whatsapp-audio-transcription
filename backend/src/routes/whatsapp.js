@@ -25,10 +25,15 @@ function createWhatsAppRouter(sessionManager) {
     }
 
     try {
-      const code = await sessionManager.requestPairingCode(userId, phoneNumber);
+      // Baileys expects phone number without '+' and without spaces
+      const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
+      console.log(`[PAIR] Requesting code for user ${userId}, phone: ${cleanNumber}`);
+      const code = await sessionManager.requestPairingCode(userId, cleanNumber);
+      console.log(`[PAIR] Got code: ${code}`);
       pairCooldowns.set(userId, Date.now());
       return res.json({ code });
     } catch (err) {
+      console.error(`[PAIR] Error:`, err);
       return res.status(500).json({ error: err.message });
     }
   });

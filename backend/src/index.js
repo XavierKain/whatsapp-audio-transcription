@@ -41,7 +41,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', sessions: sessionManager.sessions.size });
 });
 
-const server = app.listen(config.port, async () => {
+const server = app.listen(config.port, '0.0.0.0', async () => {
   console.log(`VoiceScribe backend running on port ${config.port}`);
   await sessionManager.restoreAllSessions();
   startRetryWorker();

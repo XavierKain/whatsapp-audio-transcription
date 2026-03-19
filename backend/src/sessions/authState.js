@@ -1,6 +1,6 @@
 const { encrypt, decrypt } = require('../services/encryption');
 const supabase = require('../db/supabase');
-const { proto, initAuthCreds } = require('@whiskeysockets/baileys');
+const { proto, initAuthCreds, BufferJSON } = require('@whiskeysockets/baileys');
 
 async function useSupabaseAuthState(userId, encryptionKey) {
   // Load existing credentials
@@ -15,7 +15,7 @@ async function useSupabaseAuthState(userId, encryptionKey) {
 
   if (session?.credentials_json) {
     try {
-      const decrypted = JSON.parse(decrypt(session.credentials_json, encryptionKey));
+      const decrypted = JSON.parse(decrypt(session.credentials_json, encryptionKey), BufferJSON.reviver);
       creds = decrypted.creds || {};
       keys = decrypted.keys || {};
     } catch (err) {
@@ -65,7 +65,7 @@ async function useSupabaseAuthState(userId, encryptionKey) {
     }
 
     const encrypted = encrypt(
-      JSON.stringify({ creds, keys }),
+      JSON.stringify({ creds, keys }, BufferJSON.replacer),
       encryptionKey
     );
 

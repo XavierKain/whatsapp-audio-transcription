@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { whatsappApi } from '../services/api';
 import { registerForPushNotifications } from '../services/notifications';
 
@@ -83,7 +84,13 @@ export default function PairingCode({ navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Enter this code in WhatsApp</Text>
-        <Text style={styles.code}>{pairingCode}</Text>
+        <TouchableOpacity onPress={async () => {
+          await Clipboard.setStringAsync(pairingCode.replace('-', ''));
+          Alert.alert('Copied!', 'Code copied to clipboard');
+        }}>
+          <Text style={styles.code}>{pairingCode}</Text>
+          <Text style={styles.copyHint}>Tap to copy</Text>
+        </TouchableOpacity>
         <Text style={styles.countdown}>Expires in {countdown}s</Text>
 
         <View style={styles.instructions}>
@@ -142,7 +149,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#0a0a0a' },
   title: { fontSize: 24, fontWeight: '700', color: '#fff', textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 32 },
-  code: { fontSize: 36, fontWeight: '700', fontFamily: 'monospace', color: '#25D366', textAlign: 'center', letterSpacing: 4, marginVertical: 24 },
+  code: { fontSize: 36, fontWeight: '700', fontFamily: 'monospace', color: '#25D366', textAlign: 'center', letterSpacing: 4, marginTop: 24, marginBottom: 4 },
+  copyHint: { fontSize: 12, color: '#666', textAlign: 'center', marginBottom: 16 },
   countdown: { fontSize: 14, color: '#888', textAlign: 'center' },
   instructions: { backgroundColor: '#1a1a1a', borderRadius: 12, padding: 16, marginTop: 24, borderWidth: 1, borderColor: '#25D36633' },
   step: { color: '#ccc', fontSize: 14, marginBottom: 6, lineHeight: 22 },

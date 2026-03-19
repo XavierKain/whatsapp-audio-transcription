@@ -22,9 +22,11 @@ export default function Onboarding({ navigation }) {
         ? await authApi.login(email, password)
         : await authApi.signup(email, password, referralCode || undefined);
 
-      const { access_token, refresh_token } = res.data;
-      await AsyncStorage.setItem('access_token', access_token);
-      await AsyncStorage.setItem('refresh_token', refresh_token);
+      const session = res.data.session;
+      if (session?.access_token) {
+        await AsyncStorage.setItem('access_token', session.access_token);
+        await AsyncStorage.setItem('refresh_token', session.refresh_token);
+      }
 
       navigation.replace('PairingCode');
     } catch (err) {
@@ -36,7 +38,7 @@ export default function Onboarding({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>VoiceScribe</Text>
+      <Text style={styles.title}>AudioReadr</Text>
       <Text style={styles.subtitle}>Your voice messages, transcribed instantly</Text>
 
       <TextInput
@@ -54,6 +56,10 @@ export default function Onboarding({ navigation }) {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        autoCorrect={false}
+        autoComplete="password"
+        textContentType="password"
+        autoCapitalize="none"
         placeholderTextColor="#666"
       />
       {!isLogin && (

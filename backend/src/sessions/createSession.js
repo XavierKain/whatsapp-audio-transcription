@@ -1,4 +1,11 @@
 const pino = require('pino');
+const {
+  makeWASocket,
+  downloadMediaMessage,
+  DisconnectReason,
+  fetchLatestBaileysVersion,
+} = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
 const { useSupabaseAuthState } = require('./authState');
 const config = require('../config');
 
@@ -11,15 +18,6 @@ const BAILEYS_CONFIG = {
 };
 
 async function createSession(userId, emitter) {
-  // @whiskeysockets/baileys is ESM-only, so we use dynamic import
-  const {
-    default: makeWASocket,
-    downloadMediaMessage,
-    DisconnectReason,
-    fetchLatestBaileysVersion,
-  } = await import('@whiskeysockets/baileys');
-
-  const { Boom } = require('@hapi/boom');
 
   const { state, saveCreds } = await useSupabaseAuthState(userId, config.encryptionKey);
   const { version } = await fetchLatestBaileysVersion();
@@ -31,7 +29,7 @@ async function createSession(userId, emitter) {
     ...BAILEYS_CONFIG,
   });
 
-  sock.ev.on('creds.update', () => saveCreds());
+  sock.ev.on('creds.update', saveCreds);
 
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify') return;
@@ -46,7 +44,10 @@ async function createSession(userId, emitter) {
     }
   });
 
-  sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
+  sock.ev.on('connection.update', async (update) => {
+    const { connection, lastDisconnect, qr } = update;
+    console.log(`[WA:${userId}] connection.update:`, JSON.stringify({ connection, qr: qr ? 'present' : undefined, error: lastDisconnect?.error?.message }));
+
     if (connection === 'open') {
       sock.sendPresenceUpdate('unavailable').catch(() => {});
       emitter.emit('connection-changed', { userId, status: 'connected' });
@@ -54,6 +55,7 @@ async function createSession(userId, emitter) {
 
     if (connection === 'close') {
       const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode;
+      console.log(`[WA:${userId}] Connection closed, statusCode: ${statusCode}, error:`, lastDisconnect?.error?.message);
 
       if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
         emitter.emit('connection-changed', { userId, status: 'disconnected', authFailed: true });

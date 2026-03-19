@@ -29,12 +29,19 @@ export async function registerForPushNotifications() {
     return null;
   }
 
-  const tokenData = await Notifications.getExpoPushTokenAsync();
-  const token = tokenData.data;
+  try {
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId: 'voicescribe-dev', // placeholder for dev builds
+    });
+    const token = tokenData.data;
 
-  // Register with backend
-  const platform = Platform.OS; // 'ios' or 'android'
-  await pushApi.register(token, platform);
+    // Register with backend
+    const platform = Platform.OS;
+    await pushApi.register(token, platform);
 
-  return token;
+    return token;
+  } catch (err) {
+    console.warn('Push token registration failed (expected in dev):', err.message);
+    return null;
+  }
 }

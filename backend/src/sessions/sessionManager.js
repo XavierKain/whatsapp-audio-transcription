@@ -38,6 +38,12 @@ class SessionManager {
       }
 
       if (status === 'reconnecting') {
+        // Don't auto-reconnect while a pairing code is being entered
+        if (session.isPairing) {
+          console.log(`[SM] Ignoring reconnect for ${userId} — pairing in progress`);
+          return;
+        }
+
         session.reconnectAttempts = (session.reconnectAttempts || 0) + 1;
 
         if (session.reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
@@ -100,7 +106,8 @@ class SessionManager {
     }
 
     const { sock, cleanup } = await createSession(userId, this.emitter);
-    this.sessions.set(userId, { sock, cleanup, status: 'pending', reconnectAttempts: 0 });
+    // Mark as pairing so reconnect logic doesn't interfere
+    this.sessions.set(userId, { sock, cleanup, status: 'pairing', reconnectAttempts: 0, isPairing: true });
 
     await supabase.from('whatsapp_sessions').upsert({
       user_id: userId,
@@ -109,18 +116,36 @@ class SessionManager {
       credentials_json: '',
     });
 
-    // Wait for socket to be ready before requesting pairing code
+    // Wait for QR event — this means the socket is connected to WA servers
+    // and ready for authentication (either QR scan or pairing code)
     await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('Socket connection timeout')), 30000);
-      sock.ev.on('connection.update', ({ connection }) => {
-        if (connection === 'open' || connection === 'connecting') {
+      const timeout = setTimeout(() => reject(new Error('WhatsApp connection timeout. Please try again.')), 60000);
+
+      const handler = ({ connection, qr }) => {
+        if (qr) {
+          // QR generated = socket is ready for pairing code
           clearTimeout(timeout);
+          sock.ev.off('connection.update', handler);
           resolve();
         }
-      });
+        if (connection === 'close') {
+          clearTimeout(timeout);
+          sock.ev.off('connection.update', handler);
+          reject(new Error('WhatsApp connection closed. Please try again.'));
+        }
+      };
+
+      sock.ev.on('connection.update', handler);
     });
 
+    console.log(`[PAIR] Socket ready, requesting pairing code for ${phoneNumber}`);
     const code = await sock.requestPairingCode(phoneNumber);
+    console.log(`[PAIR] Got code: ${code}`);
+
+    // Clear pairing flag so reconnect logic can work after successful pairing
+    const session = this.sessions.get(userId);
+    if (session) session.isPairing = false;
+
     return code;
   }
 
