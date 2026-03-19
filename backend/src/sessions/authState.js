@@ -3,7 +3,6 @@ const supabase = require('../db/supabase');
 const { proto, initAuthCreds, BufferJSON } = require('@whiskeysockets/baileys');
 
 async function useSupabaseAuthState(userId, encryptionKey) {
-  // Load existing credentials
   const { data: session } = await supabase
     .from('whatsapp_sessions')
     .select('credentials_json')
@@ -25,7 +24,6 @@ async function useSupabaseAuthState(userId, encryptionKey) {
     }
   }
 
-  // If no existing creds, initialize fresh ones
   if (!creds.me) {
     creds = initAuthCreds();
   }
@@ -61,15 +59,14 @@ async function useSupabaseAuthState(userId, encryptionKey) {
 
   const saveCreds = async (updatedCreds) => {
     if (updatedCreds) {
-      creds = { ...creds, ...updatedCreds };
+      Object.assign(state.creds, updatedCreds);
     }
 
     const encrypted = encrypt(
-      JSON.stringify({ creds, keys }, BufferJSON.replacer),
+      JSON.stringify({ creds: state.creds, keys }, BufferJSON.replacer),
       encryptionKey
     );
 
-    // Use update (not upsert) to avoid overwriting phone_number/status
     await supabase
       .from('whatsapp_sessions')
       .update({ credentials_json: encrypted })

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": ">=20.0.0 <25.0.0"
+  },
   "scripts": {
     "start": "node src/index.js",
     "test": "jest --verbose"
@@ -16,6 +19,7 @@
     "@supabase/supabase-js": "^2.99.2",
     "@whiskeysockets/baileys": "^6.17.16",
     "axios": "^1.13.6",
+    "baileys": "github:kobie3717/Baileys#fix/405-platform-macos",
     "dotenv": "^17.3.1",
     "expo-server-sdk": "^6.1.0",
     "express": "^5.2.1",

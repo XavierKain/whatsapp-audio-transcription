@@ -18,7 +18,6 @@ const BAILEYS_CONFIG = {
 };
 
 async function createSession(userId, emitter) {
-
   const { state, saveCreds } = await useSupabaseAuthState(userId, config.encryptionKey);
   const { version } = await fetchLatestBaileysVersion();
 
@@ -33,13 +32,10 @@ async function createSession(userId, emitter) {
 
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type !== 'notify') return;
-
     for (const msg of messages) {
       if (msg.key.fromMe) continue;
-
       const isAudio = msg.message?.audioMessage || msg.message?.pttMessage;
       if (!isAudio) continue;
-
       emitter.emit('audio-received', { userId, message: msg });
     }
   });
