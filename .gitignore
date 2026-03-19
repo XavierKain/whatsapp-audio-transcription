@@ -1,1 +1,8 @@
 .superpowers/
+.DS_Store
+.claude/
+.playwright-mcp/
+*.png
+backend/test-*.js
+backend/test-*.mjs
+test-*.mjs
