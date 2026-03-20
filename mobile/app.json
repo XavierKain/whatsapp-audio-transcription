@@ -13,7 +13,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.mobile"
+      "bundleIdentifier": "com.audioreadr.mobile",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "AudioReadr needs local network access to connect to the backend server during development.",
+        "NSBonjourServices": ["_http._tcp"]
+      }
     },
     "android": {
       "adaptiveIcon": {

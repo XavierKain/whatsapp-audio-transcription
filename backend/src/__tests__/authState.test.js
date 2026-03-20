@@ -6,7 +6,7 @@ jest.mock('../db/supabase', () => ({
 }));
 
 // Mock baileys (ESM module) - provide fake initAuthCreds and proto
-jest.mock('@whiskeysockets/baileys', () => ({
+jest.mock('baileys', () => ({
   initAuthCreds: jest.fn(() => ({
     noiseKey: { private: Buffer.alloc(32), public: Buffer.alloc(32) },
     signedIdentityKey: { private: Buffer.alloc(32), public: Buffer.alloc(32) },

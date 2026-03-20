@@ -17,7 +17,7 @@
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "@supabase/supabase-js": "^2.99.2",
-    "@whiskeysockets/baileys": "^6.17.16",
+    "@whiskeysockets/baileys": "^6.7.21",
     "axios": "^1.13.6",
     "baileys": "github:kobie3717/Baileys#fix/405-platform-macos",
     "dotenv": "^17.3.1",

@@ -9,7 +9,7 @@ const { sendPushNotification } = require('../services/push');
 const supabase = require('../db/supabase');
 const config = require('../config');
 
-// @whiskeysockets/baileys is ESM-only at the package level but ships a CJS
+// baileys is ESM-only at the package level but ships a CJS
 // build via the "main" field. We use a lazy dynamic import so the module only
 // loads when an audio message is actually processed, keeping startup fast and
 // making the dependency easy to mock in tests.
@@ -20,7 +20,7 @@ async function getBaileysDownloader() {
     // eslint-disable-next-line global-require
     return require('@whiskeysockets/baileys').downloadMediaMessage;
   }
-  const mod = await import('@whiskeysockets/baileys');
+  const mod = await import('baileys');
   return mod.downloadMediaMessage;
 }
 

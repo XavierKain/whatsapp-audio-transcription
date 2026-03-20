@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 // Mock baileys (ESM-only) — must be declared before any require
-jest.mock('@whiskeysockets/baileys', () => ({
+jest.mock('baileys', () => ({
   downloadMediaMessage: jest.fn(),
 }));
 
