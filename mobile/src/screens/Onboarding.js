@@ -18,19 +18,30 @@ export default function Onboarding({ navigation }) {
 
     setLoading(true);
     try {
+      console.log('[AUTH] Attempting', isLogin ? 'login' : 'signup', 'to', 'http://49.13.25.233:3001');
       const res = isLogin
         ? await authApi.login(email, password)
         : await authApi.signup(email, password, referralCode || undefined);
 
+      console.log('[AUTH] Response status:', res.status);
       const session = res.data.session;
       if (session?.access_token) {
         await AsyncStorage.setItem('access_token', session.access_token);
         await AsyncStorage.setItem('refresh_token', session.refresh_token);
+        console.log('[AUTH] Token saved, navigating to PairingCode');
       }
 
       navigation.replace('PairingCode');
     } catch (err) {
-      Alert.alert('Error', err.response?.data?.error || 'Something went wrong');
+      console.log('[AUTH] Error:', JSON.stringify({
+        message: err.message,
+        code: err.code,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.baseURL + err.config?.url,
+      }));
+      const msg = err.response?.data?.error || err.message || 'Something went wrong';
+      Alert.alert('Error', msg + '\n\nURL: ' + (err.config?.baseURL || '') + (err.config?.url || 'unknown'));
     } finally {
       setLoading(false);
     }
@@ -85,6 +96,20 @@ export default function Onboarding({ navigation }) {
         <Text style={styles.toggleText}>
           {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: '#333', marginTop: 20 }]}
+        onPress={async () => {
+          try {
+            const resp = await fetch('http://49.13.25.233:3001/health');
+            const data = await resp.json();
+            Alert.alert('API Test', JSON.stringify(data));
+          } catch (e) {
+            Alert.alert('API Test Failed', e.message + '\n\n' + e.toString());
+          }
+        }}>
+        <Text style={styles.buttonText}>Test API Connection</Text>
       </TouchableOpacity>
 
       {!isLogin && (

@@ -16,7 +16,11 @@
       "bundleIdentifier": "com.audioreadr.mobile",
       "infoPlist": {
         "NSLocalNetworkUsageDescription": "AudioReadr needs local network access to connect to the backend server during development.",
-        "NSBonjourServices": ["_http._tcp"]
+        "NSBonjourServices": ["_http._tcp"],
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true,
+          "NSAllowsLocalNetworking": true
+        }
       }
     },
     "android": {

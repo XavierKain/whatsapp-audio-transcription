@@ -13,7 +13,10 @@ const subscriptionRouter = require('./routes/subscription');
 const referralRouter = require('./routes/referral');
 const webhooksRouter = require('./routes/webhooks');
 
+const cors = require('cors');
 const app = express();
+
+app.use(cors());
 
 // Mount webhooks BEFORE express.json() — Stripe requires raw body for signature verification
 app.use('/webhooks', webhooksRouter);
